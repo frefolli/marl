@@ -65,7 +65,7 @@ class Scenario:
     return "./%s/%s.png" % (self.plots_dir(run), episode)
 
   def network_file(self, ) -> str:
-    return "./scenarios/%s/network.xml" % self.name
+    return "./scenarios/%s/network.net.xml" % self.name
 
   def route_file(self, ) -> str:
-    return "./scenarios/%s/routes.xml" % self.name
+    return "./scenarios/%s/routes.rou.xml" % self.name
