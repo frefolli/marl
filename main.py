@@ -10,38 +10,24 @@ if "SUMO_HOME" in os.environ:
 else:
   sys.exit("Please declare the environment variable 'SUMO_HOME'")
 
+RECICLE=True
+
 from sumo_rl import SumoEnvironment
 from sumo_rl.agents import QLAgent
 from sumo_rl.exploration import EpsilonGreedy
 
 if __name__ == "__main__":
-  scenario = utils.Scenario("4x4")
+  scenario = utils.Scenario("nuovo")
 
-  env = SumoEnvironment(
-    net_file=scenario.network_file(),
-    route_file=scenario.route_file(),
-    use_gui=False,
-    num_seconds=scenario.config.sumo.seconds,
-    min_green=scenario.config.sumo.min_green,
-    delta_time=scenario.config.sumo.delta_time,
-  )
-
+  env = scenario.new_sumo_environment()
   for run in range(scenario.config.training.runs):
     initial_states = env.reset()
-    ql_agents = {
-      ts: QLAgent(
-        starting_state=env.encode(initial_states[ts], ts),
-        state_space=env.observation_space,
-        action_space=env.action_space,
-        alpha=scenario.config.agent.alpha,
-        gamma=scenario.config.agent.gamma,
-        exploration_strategy=EpsilonGreedy(
-          initial_epsilon=scenario.config.agent.initial_epsilon,
-          min_epsilon=scenario.config.agent.min_epsilon,
-          decay=scenario.config.agent.decay),
-      )
-      for ts in env.ts_ids
-    }
+    ql_agents = {}
+    for ts in env.ts_ids:
+      if RECICLE:
+        ql_agents[ts] = scenario.load_or_new_agent(env, run, ts, initial_states[ts])
+      else:
+        ql_agents[ts] = scenario.new_agent(env, ts, initial_states[ts])
 
     for episode in range(scenario.config.training.episodes):
       if episode != 0:
@@ -62,4 +48,8 @@ if __name__ == "__main__":
         path = scenario.agents_file(run, episode, ts)
         with open(path, "wb") as file:
           pickle.dump(agent.q_table, file)
+    for ts, agent in ql_agents.items():
+      path = scenario.agents_file(run, None, ts)
+      with open(path, "wb") as file:
+        pickle.dump(agent.q_table, file)
   env.close()
