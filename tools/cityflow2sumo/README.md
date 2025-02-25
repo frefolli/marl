@@ -76,3 +76,6 @@
 
 - Always open and save the project with SUMO NetEdit before using it with the simulator to correct sorting errors.
 - Since CityFlow simulator supports discontinued routes but SUMO simulator don't, I thought about using the `routecheck.py` tool of SUMO but it simply remove the broken route leaving untouched the vehicles which used it. So I tried to deal with these broken routes.
+- CityFlow doesn't put priority in phases, so I assume that a lane has priority if is was big-Green (G) also in the previous step, otherwise is put small-Green (g). It's a fix that allows for always-green turns like the right-most one.
+  - for now the broken routes are detected and excluded from files (as well as vehicles which use them)
+- CityFlow doesn't have yellow phases, so i simply create a second phase afterwards with all small-greens (g) lowered to yellows and with `time = 5.00`.

@@ -435,10 +435,14 @@ def translate_tl_intersection(json_intersection: dict, edge_map: dict[str, Edge]
           gyr_map[greenLaneLink_index] = 'G'
         else:
           gyr_map[greenLaneLink_index] = 'g'
-    phase_state = "".join([gyr_map[c] for c in range(n_of_via_connections)])
-    phase_duration = tl_phase["time"]
-    phases.append(Phase(duration=phase_duration, state=phase_state))
-    previous_phase_state = phase_state
+    green_phase_state = "".join([gyr_map[c] for c in range(n_of_via_connections)])
+    green_phase_duration = tl_phase["time"]
+    phases.append(Phase(duration=green_phase_duration, state=green_phase_state))
+
+    yellow_phase_state = green_phase_state.replace('g', 'y')
+    yellow_phase_duration = 3.0
+    phases.append(Phase(duration=yellow_phase_duration, state=yellow_phase_state))
+    previous_phase_state = green_phase_state
   tllogic = TLLogic(id=junction_id, phases=phases)
 
   junction = Junction(
