@@ -11,6 +11,8 @@ class SumoConfig:
     self.seconds: int = data['seconds']
     self.min_green: int = data['min_green']
     self.delta_time: int = data['delta_time']
+    self.use_gui: bool = data['use_gui']
+    self.sumo_seed: int = data['sumo_seed']
 
 class AgentConfig:
   def __init__(self, data: dict):
@@ -77,14 +79,16 @@ class Scenario:
   def route_file(self) -> str:
     return "./scenarios/%s/routes.rou.xml" % self.name
 
-  def new_sumo_environment(self) -> SumoEnvironment:
+  def new_sumo_environment(self, fixed_ts: bool = False) -> SumoEnvironment:
     return SumoEnvironment(
       net_file=self.network_file(),
       route_file=self.route_file(),
-      use_gui=True,
+      use_gui=self.config.sumo.use_gui,
       num_seconds=self.config.sumo.seconds,
       min_green=self.config.sumo.min_green,
       delta_time=self.config.sumo.delta_time,
+      sumo_seed=self.config.sumo.sumo_seed,
+      fixed_ts=fixed_ts,
     )
 
   def new_agent(self, env: SumoEnvironment, agent_id: int, initial_state) -> QLAgent:
